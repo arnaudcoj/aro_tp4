@@ -1,3 +1,4 @@
+//di est l'abbréviation de directed graph, graphe orienté
 digraph {
 A -> B;
 B -> C;
