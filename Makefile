@@ -2,7 +2,7 @@ CC      = gcc
 CFLAGS  = -Wall -Werror -ansi -pedantic -std=c99          
 CFLAGS += -g
 
-all:testAnalyseur afficheVoisins
+all:testAnalyseur afficheVoisins graphe2visu
 
 testAnalyseur:testAnalyseur.c graphe.c
 	$(CC) $(CFLAGS) -o testAnalyseur testAnalyseur.c graphe.c
