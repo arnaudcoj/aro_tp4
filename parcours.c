@@ -9,7 +9,7 @@
 typedef enum {ROUGE=0, BLEU=1, VERT=2} tCouleur;
 typedef tCouleur *tTabCouleurs;
 
-void parcoursLargeur(tGraphe graphe, tNumeroSommet depart, int *sommetsParcourus);
+void parcoursLargeur(tGraphe graphe, tNumeroSommet depart, tTabCouleurs *sommetsParcourus);
 
 int main (int argc, char **argv)
 {
