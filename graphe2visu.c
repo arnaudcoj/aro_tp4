@@ -3,18 +3,21 @@
 #include <string.h>
 #include "graphe.h"
 #include "sys/wait.h"
+#include <assert.h>
 
 void graphe2visu(tGraphe graphe, char *outfile);
-void writeGraph(tGraphe graphe, FILE *fic);
-void writeDiGraph(tGraphe graphe, FILE *fic);
+void writeGraphe(tGraphe graphe, FILE *fic);
+void writeDiGraphe(tGraphe graphe, FILE *fic);
 
 int main (int argc, char **argv)
 {
   tGraphe graphe;
   graphe = grapheAlloue();
-  grapheChargeFichier(graphe, "q4-no.grp");
-  graphe2visu(graphe, "debug");
+  assert(argc != 2);
+  grapheChargeFichier(graphe, argv[1]);
+  graphe2visu(graphe, argv[2]);
   grapheLibere(graphe);
+
   return 0;
 }
 
@@ -43,27 +46,36 @@ void graphe2visu(tGraphe graphe, char *outfile) {
     halt("La commande suivante a echoue\n%s\n", commande);
 }
 
-void writeDiGraph(tGraphe graphe, FILE *fic) 
+void writeDiGraphe(tGraphe graphe, FILE *fic) 
 {
   tArc arc;
+  tNomSommet or;
+  tNomSommet dest;
   int i;
   fprintf(fic, "digraph {\n");
   for(i = 0; i < grapheNbArcs(graphe); i++)
     {
       arc = grapheRecupArcNumero(graphe, i);
-      fprintf(fic, "%s -> %s;\n", grapheRecupNomSommet(arc.orig), grapheRecupNomSommet(arc.dest));
+      grapheRecupNomSommet(graphe, arc.orig, or);
+      grapheRecupNomSommet(graphe, arc.dest, dest);
+      fprintf(fic, "%s -> %s;\n", or, dest);
     }
   fprintf(fic, "}\n");
 }
 
-void writeGraph(tGraphe graphe, FILE *fic) 
+void writeGraphe(tGraphe graphe, FILE *fic) 
 {
+  tArc arc;
   int i;
+  tNomSommet or;
+  tNomSommet dest;
   fprintf(fic, "graph {\n");
   for(i = 0; i < grapheNbArcs(graphe); i++)
     {
       arc = grapheRecupArcNumero(graphe, i);
-      fprintf(fic, "%s -> %s;\n", grapheRecupNomSommet(arc.orig), grapheRecupNomSommet(arc.dest));
+      grapheRecupNomSommet(graphe, arc.orig, or);
+      grapheRecupNomSommet(graphe, arc.dest, dest);
+      fprintf(fic, "%s -- %s;\n", or, dest);
     }
   fprintf(fic, "}\n");
 }

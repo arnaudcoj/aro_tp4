@@ -17,5 +17,9 @@ ps:test.dot test-no.dot
 	dot -Tps test.dot -o test.ps
 	dot -Tps test-no.dot -o test-no.ps
 
+test:graphe2visu q4-no.grp
+	./graphe2visu q4-no.grp testq4
+	./graphe2visu q2.grp testq2
+
 clean:
 	rm -rf *.o *.ps *~ testAnalyseur afficheVoisins graphe2visu
