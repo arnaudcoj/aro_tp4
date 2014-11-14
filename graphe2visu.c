@@ -40,7 +40,7 @@ void graphe2visu(tGraphe graphe, char *outfile) {
     writeGraphe(graphe, fic);
 
   fclose(fic);
-  sprintf(commande, "dot -Tps %s -o %s", dotfile, outfile);
+  sprintf(commande, "dot -Tps %s -o %s.ps", dotfile, outfile);
   ret = system(commande);
   if (WEXITSTATUS(ret))
     halt("La commande suivante a echoue\n%s\n", commande);
