@@ -1,17 +1,13 @@
 CC      = gcc                              
 CFLAGS  = -Wall -Werror -ansi -pedantic -std=c99          
 CFLAGS += -g
+EXEC 	=  testAnalyseur afficheVoisins graphe2visu parcours
+LIB = graphe.c
 
-all:testAnalyseur afficheVoisins graphe2visu
+all: $(EXEC)
 
-testAnalyseur:testAnalyseur.c graphe.c
-	$(CC) $(CFLAGS) -o testAnalyseur testAnalyseur.c graphe.c
-
-afficheVoisins:afficheVoisins.c graphe.c
-	$(CC) $(CFLAGS) -o afficheVoisins afficheVoisins.c graphe.c
-
-graphe2visu:graphe2visu.c graphe.c
-	$(CC) $(CFLAGS) -o graphe2visu graphe2visu.c graphe.c
+%: %.c
+	$(CC) $(CFLAGS) $(LIB) -o $@ $<
 
 ps:test.dot test-no.dot
 	dot -Tps test.dot -o test.ps
@@ -22,4 +18,4 @@ test:graphe2visu q4-no.grp
 	./graphe2visu q2.grp testq2
 
 clean:
-	rm -rf *.o *.ps *~ testAnalyseur afficheVoisins graphe2visu
+	rm -rf *.o *.ps testq4.dot testq2.dot *~ testAnalyseur afficheVoisins graphe2visu
