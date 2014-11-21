@@ -10,6 +10,9 @@ typedef enum {ROUGE=0, BLEU=1, VERT=2} tCouleur;
 typedef tCouleur *tTabCouleurs;
 
 void parcoursLargeur(tGraphe graphe, tNumeroSommet depart, tTabCouleurs sommetsParcourus);
+void graphe2visuCouleurs(tGraphe graphe, char *outfile, tTabCouleurs tabCouleurs);
+void writeGraphe(tGraphe graphe, FILE *fic, tTabCouleurs tabCouleurs);
+void writeDiGraphe(tGraphe graphe, FILE *fic, tTabCouleurs tabCouleurs);
 
 int main (int argc, char **argv)
 {
@@ -21,7 +24,7 @@ int main (int argc, char **argv)
   grapheChargeFichier(graphe, argv[1]);
   sommetsParcourus = malloc(grapheNbSommets(graphe)*sizeof(tCouleur));
   depart = grapheChercheSommetParNom(graphe, argv[2]);
-   parcoursLargeur(graphe, depart, sommetsParcourus);
+  parcoursLargeur(graphe, depart, sommetsParcourus);
   grapheLibere(graphe);
   free(sommetsParcourus);
   return 0;
@@ -36,23 +39,120 @@ void parcoursLargeur(tGraphe graphe, tNumeroSommet depart, tTabCouleurs sommetsP
   for(i = 0; i < grapheNbSommets(graphe); i++)
     sommetsParcourus[i] = BLEU;
   sommetsParcourus[depart] = VERT;
+  graphe2visuCouleurs(graphe, "testparcours", sommetsParcourus);
   fileSommetsEnfile(file, depart);
   while(!fileSommetsEstVide(file))
     {
       x = fileSommetsDefile(file);
-      grapheRecupNomSommet(graphe, x, nom);
-      printf("sommet parcouru : %s\n", nom);
       for(i = 0; i < grapheNbVoisinsSommet(graphe, x); i++)
 	{
 	  y = grapheVoisinSommetNumero(graphe, x, i);
 	  if(sommetsParcourus[y] == BLEU)
 	    {
 	      sommetsParcourus[y] = VERT;
+	      graphe2visuCouleurs(graphe, "testparcours", sommetsParcourus);
 	      fileSommetsEnfile(file, y);
 	    }
 	}
       sommetsParcourus[x] = ROUGE;
+      graphe2visuCouleurs(graphe, "testparcours", sommetsParcourus);
     }
     fileSommetsLibere(file);
   return;
+}
+
+void graphe2visuCouleurs(tGraphe graphe, char *outfile, tTabCouleurs tabCouleurs) {
+  FILE *fic;
+  char commande[80];
+  char dotfile[80]; /* le fichier dot pour creer le ps */
+  int ret;
+  /* on va creer un fichier pour graphviz, dans le fichier "outfile".dot */
+  strcpy(dotfile, outfile);
+  strcat(dotfile, ".dot");
+  fic = fopen(dotfile, "w");
+  if (fic==NULL)
+    halt ("Ouverture du fichier %s en ecriture impossible\n", dotfile);
+
+  if(grapheEstOriente(graphe))
+    writeDiGraphe(graphe, fic, tabCouleurs);
+  else
+    writeGraphe(graphe, fic, tabCouleurs);
+
+
+  fclose(fic);
+  sprintf(commande, "dot -Tps %s -o %s.ps", dotfile, outfile);
+  ret = system(commande);
+  if (WEXITSTATUS(ret))
+    halt("La commande suivante a echoue\n%s\n", commande);
+}
+
+void getNomCouleur(char *nomCouleur, tCouleur couleur)
+{
+  switch(couleur)
+    {
+    case BLEU:
+      nomCouleur = "blue";
+      break;
+    case ROUGE:
+      nomCouleur = "red";
+      break;
+    case BLEU:
+      nomCouleur = "green";
+      break;
+    default:
+      nomCouleur = "undefined";
+    }
+  return;
+}
+
+void writeGraphe(tGraphe graphe, FILE *fic, tTabCouleurs tabCouleurs) 
+{
+  tArc arc;
+  int i;
+  tNomSommet nom;
+  tNomSommet or;
+  tNomSommet dest;
+  fprintf(fic, "graph {\n");
+  
+  for(i = 0; i < grapheNbSommets(graphe); i++)
+    {
+      grapheRecupNomSommet(graphe, x, nom);
+      getNomCouleur(nomCouleur, tabCouleurs[i]);
+      printf("%s [color=%s];\n", nom, nomCouleur);
+    } 
+      
+  for(i = 0; i < grapheNbArcs(graphe); i++)
+    {
+      arc = grapheRecupArcNumero(graphe, i);
+      grapheRecupNomSommet(graphe, arc.orig, or);
+      grapheRecupNomSommet(graphe, arc.dest, dest);
+      fprintf(fic, "%s -- %s;\n", or, dest);
+    }
+  fprintf(fic, "}\n");
+}
+
+void writeDiGraphe(tGraphe graphe, FILE *fic, tTabCouleurs tabCouleurs) 
+{
+  tArc arc;
+  char *nomCouleur;
+  tNomSommet or;
+  tNomSommet dest;
+  int i;
+  fprintf(fic, "digraph {\n");
+  
+  for(i = 0; i < grapheNbSommets(graphe); i++)
+    {
+      grapheRecupNomSommet(graphe, x, nom);
+      getNomCouleur(nomCouleur, tabCouleurs[i]);
+      printf("%s [color=%s];\n", nom, nomCouleur);
+    } 
+      
+  for(i = 0; i < grapheNbArcs(graphe); i++)
+    {
+      arc = grapheRecupArcNumero(graphe, i);
+      grapheRecupNomSommet(graphe, arc.orig, or);
+      grapheRecupNomSommet(graphe, arc.dest, dest);
+      fprintf(fic, "%s -> %s;\n", or, dest);
+    }
+  fprintf(fic, "}\n");
 }

@@ -1,7 +1,7 @@
 CC      = gcc                              
 CFLAGS  = -Wall -Werror -ansi -pedantic -std=c99          
 CFLAGS += -g
-EXEC 	=  testAnalyseur afficheVoisins graphe2visu parcours
+EXEC 	=  testAnalyseur afficheVoisins graphe2visu parcours graphe2visuCouleurs
 LIB = graphe.c
 
 all: $(EXEC)
