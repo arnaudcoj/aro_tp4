@@ -27,7 +27,7 @@ int main (int argc, char **argv)
   grapheChargeFichier(graphe, argv[1]);
   sommetsParcourus = malloc(grapheNbSommets(graphe)*sizeof(tCouleur));
   depart = grapheChercheSommetParNom(graphe, argv[2]);
-  assert(depart == 0);
+  assert(depart != -1);
   parcoursLargeur(graphe, depart, sommetsParcourus);
   grapheLibere(graphe);
   free(sommetsParcourus);
@@ -120,7 +120,6 @@ void writeGraphe(tGraphe graphe, FILE *fic, tTabCouleurs tabCouleurs)
 	default:
 	  nomCouleur = "undefined";
 	};
-      return;
       fprintf(fic, "%s [color=%s];\n", nom, nomCouleur);
     } 
       
