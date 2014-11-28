@@ -1,13 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <assert.h>
+
 #include "graphe.h"
 #include "sys/wait.h"
-#include <assert.h>
 
 /* Couleurs */
 typedef enum {ROUGE=0, BLEU=1, VERT=2} tCouleur;
 typedef tCouleur *tTabCouleurs;
+
 
 void parcoursLargeur(tGraphe graphe, tNumeroSommet depart, tTabCouleurs sommetsParcourus);
 void graphe2visuCouleurs(tGraphe graphe, char *outfile, tTabCouleurs tabCouleurs);
@@ -24,6 +27,7 @@ int main (int argc, char **argv)
   grapheChargeFichier(graphe, argv[1]);
   sommetsParcourus = malloc(grapheNbSommets(graphe)*sizeof(tCouleur));
   depart = grapheChercheSommetParNom(graphe, argv[2]);
+  assert(depart == 0);
   parcoursLargeur(graphe, depart, sommetsParcourus);
   grapheLibere(graphe);
   free(sommetsParcourus);
@@ -35,7 +39,6 @@ void parcoursLargeur(tGraphe graphe, tNumeroSommet depart, tTabCouleurs sommetsP
   int i;
   tFileSommets file = fileSommetsAlloue();
   tNumeroSommet x, y;
-  tNomSommet nom;
   for(i = 0; i < grapheNbSommets(graphe); i++)
     sommetsParcourus[i] = BLEU;
   sommetsParcourus[depart] = VERT;
@@ -84,25 +87,8 @@ void graphe2visuCouleurs(tGraphe graphe, char *outfile, tTabCouleurs tabCouleurs
   ret = system(commande);
   if (WEXITSTATUS(ret))
     halt("La commande suivante a echoue\n%s\n", commande);
-}
-
-void getNomCouleur(char *nomCouleur, tCouleur couleur)
-{
-  switch(couleur)
-    {
-    case BLEU:
-      nomCouleur = "blue";
-      break;
-    case ROUGE:
-      nomCouleur = "red";
-      break;
-    case BLEU:
-      nomCouleur = "green";
-      break;
-    default:
-      nomCouleur = "undefined";
-    }
-  return;
+  printf("Press enter to continue\n");
+  getchar();
 }
 
 void writeGraphe(tGraphe graphe, FILE *fic, tTabCouleurs tabCouleurs) 
@@ -112,13 +98,30 @@ void writeGraphe(tGraphe graphe, FILE *fic, tTabCouleurs tabCouleurs)
   tNomSommet nom;
   tNomSommet or;
   tNomSommet dest;
+  char *nomCouleur;
+  nomCouleur = "uninitialized";
+
   fprintf(fic, "graph {\n");
   
   for(i = 0; i < grapheNbSommets(graphe); i++)
     {
-      grapheRecupNomSommet(graphe, x, nom);
-      getNomCouleur(nomCouleur, tabCouleurs[i]);
-      printf("%s [color=%s];\n", nom, nomCouleur);
+      grapheRecupNomSommet(graphe, i, nom);
+      switch(tabCouleurs[i])
+	{
+	case BLEU:
+	  nomCouleur = "blue";
+	  break;
+	case ROUGE:
+	  nomCouleur = "red";
+	  break;
+	case VERT:
+	  nomCouleur = "green";
+	  break;
+	default:
+	  nomCouleur = "undefined";
+	};
+      return;
+      fprintf(fic, "%s [color=%s];\n", nom, nomCouleur);
     } 
       
   for(i = 0; i < grapheNbArcs(graphe); i++)
@@ -134,17 +137,33 @@ void writeGraphe(tGraphe graphe, FILE *fic, tTabCouleurs tabCouleurs)
 void writeDiGraphe(tGraphe graphe, FILE *fic, tTabCouleurs tabCouleurs) 
 {
   tArc arc;
-  char *nomCouleur;
+  tNomSommet nom;
   tNomSommet or;
   tNomSommet dest;
   int i;
+  char *nomCouleur;
+  nomCouleur = "uninitialized";
+
   fprintf(fic, "digraph {\n");
   
   for(i = 0; i < grapheNbSommets(graphe); i++)
     {
-      grapheRecupNomSommet(graphe, x, nom);
-      getNomCouleur(nomCouleur, tabCouleurs[i]);
-      printf("%s [color=%s];\n", nom, nomCouleur);
+      grapheRecupNomSommet(graphe, i, nom);
+      switch(tabCouleurs[i])
+	{
+	case BLEU:
+	  nomCouleur = "blue";
+	  break;
+	case ROUGE:
+	  nomCouleur = "red";
+	  break;
+	case VERT:
+	  nomCouleur = "green";
+	  break;
+	default:
+	  nomCouleur = "undefined";
+	};
+      fprintf(fic, "%s [color=%s];\n", nom, nomCouleur);
     } 
       
   for(i = 0; i < grapheNbArcs(graphe); i++)
